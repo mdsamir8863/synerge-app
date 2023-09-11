@@ -15,7 +15,7 @@ const Navbar = () => {
 
   return (
     <aside className="w-52 flex justify-center items-center fixed  h-screen">
-      <div className="w-5/6 sidein flex flex-col justify-start gap-5  morphcard h-5/6 rounded-lg pt-5">
+      <div className="w-5/6 flex flex-col justify-start gap-5  morphcard h-5/6 rounded-lg pt-5">
         <div className="w-full my-6 flex justify-center">
           <img
             src="https://www.synergeworkspace.com/images/logo.png"
