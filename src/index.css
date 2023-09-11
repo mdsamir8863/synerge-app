@@ -1,26 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&family=Mulish:wght@200;300;400;500;600;800&family=Rubik:wght@300&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&family=Mulish:wght@200;300;400;500;600;800&family=Rubik:wght@300&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-    font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
+  line-height: 0;
+  margin: 0;
+  padding: 0;
 }
 
-::-webkit-scrollbar {
-    width: 10px;
+::-webkit-scrollbar{
+  display: none;
 }
 
-::-webkit-scrollbar-thumb {
-    border: 10px solid #b30000;
-    border-radius: 10px;
-    display: none !important;
+body {
+  background-color: #161b22;
+}
+
+.morphcard {
+  background: rgba(98, 98, 98, 0.25);
+  box-shadow: 0 8px 8px 0 rgba(31, 38, 135, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+
+.sidein{
+  animation: sideIn 1s ease-out;
+}
+
+@keyframes sideIn {
+
+  0%{
+    transform: translateX(-280px);
+    scale: 0.8;
+  }
+  50%{
+    transform: translateX(0px);
+  }
+  
+  100%{
+    
+    scale: 1;
+
 
 }
 
-::-webkit-scrollbar-track {
-    border: 10px solid rgb(0, 0, 0);
-    border-radius: 10px;
-    display: none !important;
+
+}
+
+
+.homecenter-top{
+ background:  linear-gradient(335deg,rgba(2,0,36,1) 0%,rgba(0,0,0,1) 45%,rgba(224,17,17,1) 90%);
+}
+
+.feedshadow{
+  box-shadow: rgba(149, 149, 149, 0.25) 0px 25px 50px -12px;
 }
