@@ -12,6 +12,8 @@ const Login = lazy(() => import("./app/screens/landing/Login"));
 const Signup = lazy(() => import("./app/screens/landing/Signup"));
 const Recover = lazy(() => import("./app/screens/landing/Recover"));
 const Home = lazy(() => import("./app/screens/home/Home"));
+const Events = lazy(() => import("./app/screens/home/Events"));
+const Bookings = lazy(() => import("./app/screens/home/Bookings"));
 
 
 
@@ -37,6 +39,8 @@ const {auth} = useSelector(e=>e.auth_state_reducer)
         <Route path="/login" element={<Login/>}/>
         <Route path="/signup" element={<Signup/>}/>
         <Route path="/forgotpassword" element={<Recover/>}/>
+        <Route path="/events" element={<Events/>}/>
+        <Route path="/bookings" element={<Bookings/>}/>
       </Routes>
       </Suspense>
     </BrowserRouter>

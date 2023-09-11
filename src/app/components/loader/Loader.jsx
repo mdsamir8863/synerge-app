@@ -1,7 +1,7 @@
 import "./loader.css"
 const Loader = () => {
   return (
-<section className="w-full h-screen fixed ">
+<section className="w-full z-[999] h-screen fixed ">
 <div className="flex w-full relative h-full ">
 <div className="flex absolute z-10 w-full h-full opacity-75 bg-black"></div>
 <div className="z-20 flex justify-center items-center w-full h-full">
