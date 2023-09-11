@@ -18,7 +18,7 @@ const Signup = () => {
                     className="flex flex-col items-center justify-center w-full rounded-lg cursor-pointer  hover:bg-gray-100 absolute left-0"
                   >
                     <div className="flex relative bg-gray-200 rounded-full border">
-                      <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                      <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full ">
                         <svg
                           className="absolute w-12 h-12 text-gray-400 -left-1"
                           fill="currentColor"
