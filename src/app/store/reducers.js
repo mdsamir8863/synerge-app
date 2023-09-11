@@ -12,6 +12,12 @@ const user_state = {
   user: {},
 };
 
+
+const users_companies_state={
+  companies:[],
+  users:[]
+}
+
 export const auth_state_reducer = createReducer(auth_state, {
   auth_data: (state, action) => {
     state.auth = action.payload;
@@ -29,3 +35,10 @@ export const user_state_reducer = createReducer(user_state, {
     state.user = action.payload;
   },
 });
+
+export const users_companies_state_reducer = createReducer(users_companies_state ,{
+  users_companies_data:(state,action)=>{
+state.companies = action.payload.companies
+state.users = action.payload.users
+  }
+})
