@@ -3,9 +3,9 @@ import Card from "./PostCard";
 const HomeFeeds = () => {
   return (
 
-      <main className="mr-5 h-[95%] w-1/3 ">
+      <main className="mr-5 h-[95%] relative w-1/3 ">
         <p className="text-center mt-2 text-white text-2xl font-bold">Feed</p>
-          <div className="bg-red-500 absolute right-0 top-3 cursor-pointer w-fit px-4 py-1 rounded">
+          <div className="bg-red-500 absolute right-0 top-2 cursor-pointer w-fit px-4 py-1 rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

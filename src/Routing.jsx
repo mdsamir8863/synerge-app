@@ -15,6 +15,8 @@ const Home = lazy(() => import("./app/screens/home/Home"));
 const Events = lazy(() => import("./app/screens/home/Events"));
 const Bookings = lazy(() => import("./app/screens/home/Bookings"));
 const New = lazy(() => import("./app/screens/home/New"));
+const Account = lazy(() => import("./app/screens/home/Account"));
+const All = lazy(() => import("./app/screens/home/All"));
 
 
 
@@ -43,6 +45,8 @@ const {auth} = useSelector(e=>e.auth_state_reducer)
         <Route path="/events" element={<Events/>}/>
         <Route path="/bookings" element={<Bookings/>}/>
         <Route path="/new" element={<New/>}/>
+        <Route path="/account" element={<Account/>}/>
+        <Route path="/all" element={<All/>}/>
       </Routes>
       </Suspense>
     </BrowserRouter>

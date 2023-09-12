@@ -40,7 +40,7 @@ dispatch({type:'loading_data', payload:true})
       })
   };
 
-console.log('hwllo')
+
 
 
   return (
@@ -114,7 +114,7 @@ console.log('hwllo')
                   <p className="text-sm font-light text-gray-500 rktext-gray-400">
                     Don’t have an account yet?{" "}
                     <Link
-                      to="/register"
+                      to="/signup"
                       className="font-medium text-red-600 hover:underline rktext-red-500"
                     >
                       Sign up
