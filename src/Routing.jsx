@@ -17,6 +17,8 @@ const Bookings = lazy(() => import("./app/screens/home/Bookings"));
 const New = lazy(() => import("./app/screens/home/New"));
 const Account = lazy(() => import("./app/screens/home/Account"));
 const All = lazy(() => import("./app/screens/home/All"));
+const CompanyProfile = lazy(() => import("./app/screens/home/CompanyProfile"));
+const UserProfile = lazy(() => import("./app/screens/home/UserProfile"));
 
 
 
@@ -30,23 +32,25 @@ const {auth} = useSelector(e=>e.auth_state_reducer)
 
 
 
-
+console.log(auth)
   return (
     <BrowserRouter>
      <Suspense fallback={<Loader />}>
       {loading ?<Loader />:''}
-      {!auth ?<Navbar />:''}
-      <div className="flex w-60"></div>
+      {auth ?<Navbar />:''}
+      {auth ?<div className="flex w-60"></div>:''}
       <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/login" element={<Login/>}/>
+        <Route path="/" element={auth ?<Home/> : <Login/>}/>
+        <Route path="/login" element={auth ?<Home/> :<Login/> }/>
         <Route path="/signup" element={<Signup/>}/>
-        <Route path="/forgotpassword" element={<Recover/>}/>
-        <Route path="/events" element={<Events/>}/>
-        <Route path="/bookings" element={<Bookings/>}/>
-        <Route path="/new" element={<New/>}/>
-        <Route path="/account" element={<Account/>}/>
-        <Route path="/all" element={<All/>}/>
+        <Route path="/forgotpassword" element={!auth? <Recover/> : <Home/>}/>
+        <Route path="/events" element={auth ?<Events/> :<Login/>}/>
+        <Route path="/bookings" element={auth ?<Bookings/> :<Login/>}/>
+        <Route path="/new" element={auth? <New/> :<Login/> }/>
+        <Route path="/account" element={auth ?<Account/>:<Login/> } />
+        <Route path="/all" element={auth ?<All/> : <Login/>}/>
+        <Route path="/company/:id" element={auth ?<CompanyProfile/> : <Login/>}/>
+        <Route path="/user/:id" element={auth ?<UserProfile/> : <Login/>}/>
       </Routes>
       </Suspense>
     </BrowserRouter>

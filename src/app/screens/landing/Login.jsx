@@ -4,8 +4,6 @@ import { useDispatch } from "react-redux";
 import Axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-
-
 const UserLogin = () => {
   const [Email, SetEmail] = useState("");
   const [Password, SetPassword] = useState("");
@@ -14,18 +12,18 @@ const UserLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-dispatch({type:'loading_data', payload:true})
-    await Axios.post(`/api/v1/user/login`, {
+    dispatch({ type: "loading_data", payload: true });
+    await Axios.post(`/api/v1/admin/login`, {
       email: Email,
       password: Password,
     })
       .then(async (res) => {
-        console.log(res);
         if (res.data.success === true) {
-            dispatch({type:'loading_data', payload:false})
+          await fetch_companies();
+          dispatch({ type: "loading_data", payload: false });
           dispatch({ type: "auth_data", payload: true });
           dispatch({ type: "user_data", payload: res.data.user });
-          navigate("/dashboard");
+          navigate("/");
         }
       })
       .catch((err) => {
@@ -35,19 +33,53 @@ dispatch({type:'loading_data', payload:true})
         } else {
           toast.error(err.message);
         }
-      }).finally(()=>{
-        dispatch({type:'loading_data', payload:false})
       })
+      .finally(() => {
+        dispatch({ type: "loading_data", payload: false });
+      });
   };
 
+  const fetch_users = async (companies) => {
+    dispatch({ type: "loading_true", payload: true });
+    await Axios.get("/api/v1/users")
+      .then((res) => {
+        if (res.data.success===true) {
+          console.log('companies' ,res.data.users)
+          dispatch({
+            type: "users_companies_data",
+            payload: {
+              companies: companies,
+              users: res.data.users,
+            },
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error(err.response.data.message || err.message);
+      })
+      .finally(() => {
+        dispatch({ type: "loading_true", payload: false });
+      });
+  };
 
+  const fetch_companies = async () => {
+    dispatch({ type: "loading_data", payload: true });
+    await Axios.get("/api/v1/companies").then(async(res) => {
+      if (res.data.success === true) {
+console.log('companies' ,res.data.companies )
+        await fetch_users(res.data.companies);
+      }
+    });
 
+    dispatch({ type: "loading_data", payload: false });
+  };
 
   return (
     <section className="w-full h-screen flex justify-center items-center">
-        <div>
-        <Toaster/>
-        </div>
+      <div>
+        <Toaster />
+      </div>
       <section className=" w-full h-full ">
         <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
           <a
@@ -59,7 +91,7 @@ dispatch({type:'loading_data', payload:true})
           <div className="w-full bg-white rounded-lg shadow rkborder md:mt-0 sm:max-w-md xl:p-0 rkbg-gray-800 rkborder-gray-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl rktext-white">
-                Login User
+                Login Admin
               </h1>
               <form
                 onSubmit={handleSubmit}

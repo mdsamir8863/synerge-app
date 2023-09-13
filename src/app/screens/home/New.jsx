@@ -3,7 +3,7 @@ import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Dropzone from "react-dropzone";
-// import s3 from '../../utils/awsConfig.js';
+import toast, { Toaster } from "react-hot-toast";
 
 const New = () => {
   const [select, set_select] = useState("");
@@ -54,15 +54,19 @@ const New = () => {
     e.preventDefault();
     dispatch({ type: "loading_data", payload: true });
 
-    await Axios.post(`/api/v1/register/create`, company_form_data)
+    await Axios.post(`/api/v1/register/company`, company_form_data)
       .then(async (res) => {
+        console.log(res);
         if (res.data.success === true) {
-          alert("successfully created company");
           dispatch({ type: "loading_data", payload: false });
-          navigate("/");
+          toast.success("successfully created company Account 😀");
+          set_company_form_data({ name: "", email: "", mobile: "", hours: "" });
         }
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        toast.error(err?.response?.data?.message || err.message);
+        console.log(err);
+      })
       .finally(() => dispatch({ type: "loading_data", payload: false }));
   };
 
@@ -156,6 +160,9 @@ const New = () => {
 
   return (
     <section className="flex items-center flex-col h-screen w-full">
+      <div>
+        <Toaster />
+      </div>
       <div className="flex w-3/4 h-32 items-center justify-between">
         <span className="font-bold text-xl text-white">New</span>
         <div>

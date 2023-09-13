@@ -1,15 +1,76 @@
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import Axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
-import { Link } from "react-router-dom";
 const Signup = () => {
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState(new FormData());
+  const navigate = useNavigate();
+  const handle_submit = async (e) => {
+    e.preventDefault();
+
+    // Access and log the form data
+    for (var [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    dispatch({ type: "loading_data", payload: true });
+
+    await Axios.post("/api/v1/user/register", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.data.success === true) {
+          dispatch({ type: "loading_data", payload: false });
+          alert("ID is under verification. contact admin");
+          navigate("/");
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message || err.message);
+      })
+      .finally(() => {
+        dispatch({ type: "loading_data", payload: false });
+      });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Update the FormData object when form inputs change
+    formData.set(name, value);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    // Update the FormData object with the selected image file
+    formData.set("image", file);
+  };
+
+  useEffect(() => {
+    dispatch({ type: "loading_data", payload: false });
+  }, []);
+
   return (
     <>
       <section className="bg-gray-50 w-full">
+        <div>
+          <Toaster/>
+        </div>
         <div className="flex flex-col items-center justify-center px-6 py-8">
           <div className="w-full bg-white rounded-lg shadow  md:mt-0 sm:max-w-md xl:p-0 ">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+            <form
+              onSubmit={handle_submit}
+              className="p-6 space-y-4 md:space-y-6 sm:p-8"
+            >
               <div className="flex items-center justify-between">
                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl ">
-                  Create and account
+                  Create user account
                 </h1>
 
                 <div className="flex items-center justify-center w-11 relative">
@@ -47,27 +108,35 @@ const Signup = () => {
                         />
                       </svg>
                     </div>
-                    <input id="dropzone-file " type="file" className="hidden" />
+                    <input
+                      onChange={handleImageChange}
+                      required
+                      className="opacity-0 translate-y-[-19px]"
+                      type="file"
+                      accept="image/*"
+                    ></input>
                   </label>
                 </div>
               </div>
-              <form className="space-y-4 md:space-y-6" action="#">
+
+              <div className="space-y-4 md:space-y-6">
                 <div>
                   <label
-                    htmlFor="email"
+                    htmlFor="name"
                     className="block mb-2 text-sm font-medium text-gray-900 
                       "
                   >
                     Your Name
                   </label>
                   <input
-                    type="email"
-                    name="email"
-                    id="email"
+                    type="text"
+                    name="name"
+                    onChange={handleInputChange}
+                    id="name"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 
                       "
                     placeholder="Samir Ansari"
-                    required=""
+                    required
                   />
                 </div>
                 <div>
@@ -81,11 +150,12 @@ const Signup = () => {
                   <input
                     type="email"
                     name="email"
+                    onChange={handleInputChange}
                     id="email"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 
                       "
                     placeholder="Ansari@ggmailcom.com"
-                    required=""
+                    required
                   />
                 </div>
                 <div>
@@ -100,58 +170,37 @@ const Signup = () => {
                   <input
                     type="password"
                     name="password"
+                    onChange={handleInputChange}
                     id="password"
                     placeholder="••••••••"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 
                       "
-                    required=""
+                    required
                   />
                 </div>
                 <div>
                   <label
-                    htmlFor="confirm-password"
+                    htmlFor="location"
                     className="block mb-2 text-sm font-medium text-gray-900 
                       "
                   >
                     Select an option
                   </label>
-                  <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5">
+                  <select
+                    required
+                    name="location"
+                    onChange={handleInputChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                  >
                     <optgroup>
                       <option value="Select an option">Select an option</option>
-                      <option value="Hennur">Hennur</option>
-                      <option value="Jaynagar">Jaynagar</option>
-                      <option value="HSR">HSR</option>
+                      <option value="hennur">Hennur</option>
+                      <option value="jayanagar">Jaynagar</option>
+                      <option value="hsr">HSR</option>
                     </optgroup>
                   </select>
                 </div>
-                <div className="flex items-start">
-                  <div className="flex items-center h-5">
-                    <input
-                      id="terms"
-                      aria-describedby="terms"
-                      type="checkbox"
-                      className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 
-                        "
-                      required=""
-                    />
-                  </div>
-                  <div className="ml-3 text-sm">
-                    <label
-                      htmlFor="terms"
-                      className="font-light text-gray-500 
-                        "
-                    >
-                      I accept the{" "}
-                      <a
-                        className="font-medium text-primary-600 hover:underline 
-                        "
-                        href="#"
-                      >
-                        Terms and Conditions
-                      </a>
-                    </label>
-                  </div>
-                </div>
+
                 <button
                   type="submit"
                   className="w-full text-white bg-red-600 hover:bg-red-700 focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center"
@@ -168,8 +217,8 @@ const Signup = () => {
                     Login here
                   </Link>
                 </p>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       </section>

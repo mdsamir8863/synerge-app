@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
+import { Link } from "react-router-dom"
 
 
 const HomeCenter = () => {
 const[date,set_date] = useState('')
-
-
+const {user} = useSelector(e=>e.user_state_reducer)
+const {companies,users} = useSelector(e=>e.users_companies_state_reducer)
 const fetch_date=()=>{
 // Create a new Date object
 var today = new Date();
@@ -34,8 +36,8 @@ fetch_date()
 </div>
 <div className="rounded-lg flex h-32 relative w-full  shadow-2xl  homecenter-top">
 <div className="bg-black absolute top-0 opacity-40 w-full h-full rounded-lg"></div>
-<div className="flex text-white font-bold z-20 text-xl w-full h-full p-5">
-    Hello Synerge This is Admin from 
+<div className="flex text-white font-bold z-20 text-xl w-full h-full p-7">
+    Hello {user.name}, welcome to {user.location} Synerge community 
 </div>
 
 
@@ -49,17 +51,14 @@ fetch_date()
 <span className="m-3"> Companies</span>
 <div className="flex  items-end  overflow-x-scroll w-full">
 
-<div className="flex flex-col  mx-3 p-0">
+{companies && companies.map((e)=> 
+<Link to={`/company/${e._id}`} key={e._id} className="flex items-center flex-col  mx-3 p-0">
 <div className="relative inline-flex items-center justify-center w-14 h-14 overflow-hidden bg-gray-100 rounded-full ">
-    <span className="font-medium text-gray-600 ">JL</span>
+    <span className="font-bold text-gray-600 uppercase">{e?.name.slice(0,2)}</span>
 </div>
-</div>
-<div className="flex flex-col  mx-3 p-0">
-<div className="relative inline-flex items-center justify-center w-14 h-14 overflow-hidden bg-gray-100 rounded-full ">
-    <span className="font-medium text-gray-600 ">JL</span>
-</div>
-    
-</div>
+<span className="text-[12px]">{(e.name).slice(0,6)}</span>
+</Link>)
+}
 
 </div>
 
@@ -70,12 +69,14 @@ fetch_date()
 <span className="m-3"> Users</span>
 <div className="flex  items-end  overflow-x-scroll w-full">
 
-<div className="flex flex-col  mx-3 p-0">
+{users && users.map((e)=> 
+<Link to={`/user/${e._id}`} key={e._id} className="flex flex-col items-center   mx-3 p-0">
 <div className="relative inline-flex items-center justify-center w-14 h-14 overflow-hidden bg-gray-100 rounded-full ">
-    <span className="font-medium text-gray-600 ">JL</span>
+    <span className="font-bold text-gray-600  uppercase">{e?.name.slice(0,2)}</span>
 </div>
-    
-</div>
+<span className="text-[12px]">{(e.name).slice(0,6)}</span>
+</Link>)
+}
 
 </div>
 

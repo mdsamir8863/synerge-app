@@ -25,7 +25,10 @@ const Navbar = () => {
         </div>
         <div className="flex  items-center justify-between flex-col">
           {tab == "/" ? (
-            <span className=" mb-3 cursor-pointer bg-red-600 text-white  font-bold text-lg transition-all duration-150 ease-in hover:bg-red-600 hover:text-white rounded-full px-5 py-2">
+            <span onClick={() => {
+              set_tab("/");
+              navigate("/");
+            }}  className=" mb-3 cursor-pointer bg-red-600 text-white  font-bold text-lg transition-all duration-150 ease-in hover:bg-red-600 hover:text-white rounded-full px-5 py-2">
               Home
             </span>
           ) : (
