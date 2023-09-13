@@ -1,23 +1,28 @@
-const arr =[
+const arr =[1,4,5,6,7,7]
+const users=[
 {
-    id:'001',
-    name:'vishal',
-    status:true
+    id:1,
+    name:'vishal'
 },
 {
-    id:'002',
-    name:'samir',
-    status:false
+    id:3,
+    name:'samir'
 },
-{
-    id:'003',
-    name:'ansari',
-    status:true
-},
-{
-    id:'004',
-    name:'gehlot',
-    status:false
-},
-
 ]
+
+
+const all_users =[]
+users.map((e)=>
+{
+if(arr.includes(e.id)){
+    all_users.push(e)
+    return e
+}
+
+}
+) 
+console.log(all_users)
+
+
+
+
