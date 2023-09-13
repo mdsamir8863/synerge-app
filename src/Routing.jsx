@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 
 
 
+
 // Screens importing as lazy to load 
 const Login = lazy(() => import("./app/screens/landing/Login"));
 const Signup = lazy(() => import("./app/screens/landing/Signup"));
@@ -39,6 +40,7 @@ console.log(auth)
       {loading ?<Loader />:''}
       {auth ?<Navbar />:''}
       {auth ?<div className="flex w-60"></div>:''}
+
       <Routes>
         <Route path="/" element={auth ?<Home/> : <Login/>}/>
         <Route path="/login" element={auth ?<Home/> :<Login/> }/>
