@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import ReadDate from "../../utils/ReadDate";
+import Axios from "axios";
 
 const CompanyProfile = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [company, set_company] = useState({});
   const [company_users, set_company_users] = useState([]);
+  const [bookings, set_bookings] = useState([]);
   const { companies, users } = useSelector(
     (e) => e.users_companies_state_reducer
   );
@@ -18,19 +20,35 @@ const CompanyProfile = () => {
     const employee_ids = companies.find((e) => e._id === id).employees;
     console.log(employee_ids);
     /* fetching employees from redux with just ids*/
-    fetch_employees(employee_ids);
+    fetch_employees();
   };
 
-  const fetch_employees = (ids) => {
+  const fetch_employees = () => {
     console.log(users);
     const all_users = users.filter((e) => e.company == id);
     set_company_users(all_users);
   };
 
+  const fetch_company_bookings = async () => {
+    dispatch({ type: "loading_data", payload: true });
+    await Axios.get(`/api/v1/allbookings/company/detail/${id}`)
+      .then((res) => {
+        console.log(res);
+        if (res.data.slots) {
+          set_bookings(res.data.slots);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        dispatch({ type: "loading_data", payload: false });
+      });
+  };
+
   useEffect(() => {
     fetch_company();
-
-    console.log(companies);
+    fetch_company_bookings();
   }, []);
 
   return (
@@ -72,9 +90,6 @@ const CompanyProfile = () => {
           </span>
           <span className="text-gray-400 text-sm  font-medium">
             joined on: {ReadDate(company?.createdAt)}
-          </span>
-          <span className="text-gray-400 text-sm  font-medium">
-            users: {company?.employees?.length}
           </span>
         </div>
         <div className="flex justify-center items-center">
@@ -218,7 +233,42 @@ const CompanyProfile = () => {
                 : ""}
             </ul>
           ) : (
-            ""
+            <table className="w-full h-auto overflow-y-scroll text-sm text-left  ">
+              <thead className="text-xs  uppercase bg-gray-600 ">
+                <tr>
+                  <th scope="col" className="px-6 py-3">
+                    Room
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Time
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Booked by
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Booked at
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings &&
+                  bookings.map((e) => (
+                    <tr
+                      key={e._id}
+                      className={
+                        e.flexy
+                          ? "h-16 text-white bg-gradient-to-r from-cyan-500 to-blue-500"
+                          : "bg-white text-gray-700  border-b h-16 border-white"
+                      }
+                    >
+                      <td className="px-6 py-4">{e?.room}</td>
+                      <td className="px-6 py-4">{e?.time}</td>
+                      <td className="px-6 py-4">{e?.bookedby.split("+")[0]}</td>
+                      <td className="px-6 py-4">{ReadDate(e?.CraetedAt)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>

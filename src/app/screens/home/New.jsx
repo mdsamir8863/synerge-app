@@ -1,19 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import Dropzone from "react-dropzone";
 import toast, { Toaster } from "react-hot-toast";
 
 const New = () => {
   const [select, set_select] = useState("");
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState(null);
   const [visitor_company, set_visitor_company] = useState("");
   const [visitor_company_employees, set_visitor_company_employees] = useState(
     []
   );
+
   const [visitor_employee, set_visitor_employee] = useState("");
   const [visitor, set_visitor] = useState("");
   const [visitor_number, set_visitor_number] = useState("");
@@ -21,7 +19,7 @@ const New = () => {
     (e) => e.users_companies_state_reducer
   );
 
-  const [caption, set_caption] = useState("");
+  const [caption, set_caption] = useState(null);
   const [company_form_data, set_company_form_data] = useState({
     name: "",
     email: "",
@@ -61,6 +59,15 @@ const New = () => {
           dispatch({ type: "loading_data", payload: false });
           toast.success("successfully created company Account 😀");
           set_company_form_data({ name: "", email: "", mobile: "", hours: "" });
+          const updated_companies = [...companies, res.data.company];
+          const updated_users = [...users];
+          dispatch({
+            type: "users_companies_data",
+            payload: {
+              companies: updated_companies,
+              users: updated_users,
+            },
+          });
         }
       })
       .catch((err) => {
@@ -71,76 +78,113 @@ const New = () => {
   };
 
   const find_employees = (cmp) => {
-    const company = companies.filter((e) => e.name == cmp);
-    set_visitor_company_employees(
-      users.filter((e) => e.company === company[0]._id)
-    );
+    set_visitor_company_employees(users.filter(e=>e.company== cmp))
+   
   };
 
   const handle_visitor_form = async (e) => {
     e.preventDefault();
+    dispatch({type:'loading_data',payload:true})
+    console.log(visitor_company,visitor_employee,visitor_number,visitor)
+    await Axios.post('/api/v1/add/visitor',{
+      name:visitor,mobile:visitor_number,company:visitor_company,user:visitor_employee
+    })
+    .then((res)=>{
+      console.log(res)
+      if(res.data.success===true){
+        toast.success('successfully Added visitor')
+      }
+    }).catch((err)=>{
+      console.log(err)
+      toast.error(err?.response?.data?.message || err?.message)
+    }).finally(()=>{
+      dispatch({type:'loading_data',payload:false})
+    })
 
-    await Axios.post("/api/v1/new/visitor/")
-      .then(async (res) => {
-        if (res.data.success === true) {
-          alert("added visitor successfully");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        alert(err.message);
-      });
+
+ 
   };
 
-  const handle_drop = async (acceptedFiles) => {
-    const file = acceptedFiles[0];
+  const upload_post = async (e) => {
+    e.preventDefault();
 
-    // Generate a unique file name
-    const fileName = `${Date.now()}-${file.name}`;
-
-    // Set up S3 parameters
-    const params = {
-      Bucket: "YOUR_S3_BUCKET_NAME",
-      Key: fileName,
-      Body: file,
-      ACL: "public-read", // Make the file publicly accessible
-    };
-
-    try {
-      // Upload the file to S3
-      await s3.upload(params).promise();
-
-      // Generate the S3 URL for the uploaded image
-      const url = `https://YOUR_S3_BUCKET_NAME.s3.amazonaws.com/${fileName}`;
-
-      // Set the image URL in state to display it
-      setImageUrl(url);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
-  };
-
-  const upload_post = async () => {
+    dispatch({ type: "loading_data", payload: true });
     if (imageUrl && caption) {
-      await Axios.post("/api/v1/new/post", {
-        image: imageUrl,
-        caption,
+      const form_data = new FormData();
+      form_data.append("image", imageUrl);
+      form_data.append("caption", caption);
+
+      await Axios.post("/api/v1/admin/post/upload", form_data, {
+        headers: { "Content-Type": "multipart/form-data" },
       })
         .then((res) => {
           console.log(res);
+          if (res.data.success === true) {
+            toast.success("Successfully uploaded");
+            setImageUrl(null);
+            set_caption(null);
+          }
         })
         .catch((err) => {
           console.log(err);
+          toast.error(err?.response?.data?.message || err?.message);
+        })
+        .finally(() => {
+          dispatch({ type: "loading_data", payload: false });
         });
     }
   };
 
-  const handle_admin_form = async () => {
+  const handle_admin_form = async (e) => {
+    e.preventDefault();
     console.log(admin_form_data);
+dispatch({type:'loading_data',payload:true})
+await Axios.post('/api/v1/admin/register',admin_form_data)
+.then((res)=>{
+  console.log(res)
+  if(res.data.success===true){
+    toast.success(res.data.message)
+    set_admin_form_data({
+      name: "",
+      email: "",
+      password: "",
+      location: "",
+    })
+  }
+}).catch((err)=>{
+toast.error(err?.response?.data?.message || err.message)
+}).finally(()=>{
+  dispatch({type:'loading_data',payload:false})
+})
+
+
+
+
+
   };
 
-  const handle_cafe_admin_form = async () => {
+  const handle_cafe_admin_form = async (e) => {
+    e.preventDefault();
     console.log(cafe_admin_form_data);
+
+dispatch({type:'loading_data',payload:true})
+await Axios.post('/api/v1/scadmin/register',cafe_admin_form_data)
+.then((res)=>{
+if(res.data.success==true){
+  toast.success('Added scafe Admin ☕')
+  set_cafe_admin_form_data({
+    name: "",
+    email: "",
+    password: "",
+  })
+}
+
+}).catch((err)=>{
+toast.error(err?.response?.data?.message || err?.message)
+}).finally(()=>{
+  dispatch({type:'loading_data',payload:false})
+})
+
   };
 
   const handle_admin_form_change = (e) => {
@@ -157,6 +201,10 @@ const New = () => {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    dispatch({ type: "loading_data", payload: false });
+  }, []);
 
   return (
     <section className="flex items-center flex-col h-screen w-full">
@@ -326,8 +374,7 @@ const New = () => {
                         }}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 rk:bg-gray-700 rk:border-gray-600 rk:placeholder-gray-400 rk:text-white rk:focus:ring-blue-500 rk:focus:border-blue-500"
                       >
-                        <option value="">--- Select ---</option>
-                        <option value="5">5</option>
+                        <option value={null}>--- Select ---</option>
                         {companies &&
                           companies.map((ele, index) => {
                             return (
@@ -416,7 +463,35 @@ const New = () => {
 
         {/* add a post  */}
         {select === "post" ? (
-          <div className="w-1/2 gap-5 h-full  flex-col flex justify-center items-center">
+          <form
+            onSubmit={upload_post}
+            className="w-1/2 bg-white  gap-5 h-auto rounded-lg  flex-col flex justify-center items-center"
+          >
+            <span className="font-bold mt-5  text-gray-700">Add a Post</span>
+            <div className="flex  relative gap-2 w-3/4 py-5 text-white rounded-md justify-center items-center bg-gray-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+                />
+              </svg>
+              <span>Upload here</span>
+
+              <input
+                type="file"
+                onChange={(e) => setImageUrl(e.target.files[0])}
+                className="absolute opacity-0"
+                accept="image/*"
+              />
+            </div>
             <input
               required
               type="text"
@@ -424,53 +499,13 @@ const New = () => {
               placeholder="caption"
               className="w-3/4 h-12 p-3 outline-none border-b-emerald-900  border-2 rounded-2xl "
             />
-            <Dropzone onDrop={handle_drop}>
-              {({ getRootProps, getInputProps }) => (
-                <div {...getRootProps()} className="dropzone">
-                  <div className="flex items-center justify-center w-full">
-                    <label
-                      htmlFor="dropzone-file"
-                      className="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg
-                          className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 20 16"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                          />
-                        </svg>
-                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                          <span className="font-semibold">Click to upload</span>{" "}
-                          or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          SVG, PNG, JPG or GIF (MAX. 800x400px)
-                        </p>
-                      </div>
-                      <input {...getInputProps()} />
-                    </label>
-                  </div>
-                </div>
-              )}
-            </Dropzone>
-
             <button
-              onClick={upload_post}
               type="submit"
               className="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 rk:bg-purple-600 rk:hover:bg-purple-700 rk:focus:ring-purple-900"
             >
               Upload
             </button>
-          </div>
+          </form>
         ) : (
           ""
         )}

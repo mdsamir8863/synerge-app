@@ -40,7 +40,6 @@ export const user_state_reducer = createReducer(user_state, {
 
 export const users_companies_state_reducer = createReducer(users_companies_state ,{
   users_companies_data:(state,action)=>{
-    console.log(action)
 state.companies = action.payload.companies
 state.users = action.payload.users
   }

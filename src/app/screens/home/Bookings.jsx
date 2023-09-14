@@ -1,42 +1,129 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FilterPop from "../../components/FilterPop";
 import AddNewBooking from "../../components/AddNewBooking";
+import { useDispatch, useSelector } from "react-redux";
+import Axios  from "axios";
+import fetch_company from "../../utils/fetchCompany";
+import ReadDate from "../../utils/ReadDate";
 
 const Bookings = () => {
+  const {companies} = useSelector(e=>e.users_companies_state_reducer)
   const [filter_overlay, set_filter_overlay] = useState(false);
+  const dispatch = useDispatch()
+  const [all_bookings,set_all_bookings] = useState([])
   const [form_data, set_form_data] = useState({
     company: "",
     date: "",
   });
+  const [booking_form_data,set_booking_form_data]=useState({
+    company:'',
+    date:'',
+    time:'',
+    room:''
+  })
+
+
+  
+
+
   const[add_booking_pop,set_add_booking_pop] = useState(false)
   
   const pop_up_filter = () => {
     set_filter_overlay((e) => !e);
   };
 
-  const filter_handle_form = () => {
-    console.log(form_data);
-  };
+
 
   const handle_form_changes = (e) => {
     const { name, value } = e.target;
     set_form_data((prev) => ({
       ...prev,
-      [name]: [value],
+      [name]: value,
+    }));
+  };
+  const handle_booking_form_changes = (e) => {
+    const { name, value } = e.target;
+    set_booking_form_data((prev) => ({
+      ...prev,
+      [name]: value,
     }));
   };
 
 const pop_up_new_booking=()=>{
     set_add_booking_pop(e=>!e)
+}
+
+
+
+
+const room_booking_handler=async(e)=>{
+  e.preventDefault();
+dispatch({type:'loading_user', payload:true})
+await Axios.post('/api/v1/booking/create/admin',booking_form_data)
+.then((res)=>{
+  console.log(res)
+  if(res.data.success===true){
+    alert(res.data.message)
+  }
+}).catch((err)=>{
+  console.log(err)
+  alert(err.response.data.message || err.message)
+}).finally(()=>{
+  dispatch({type:'loading_user', payload:false})
+  set_add_booking_pop(false)
+})
+
+
+
 
 }
+
+
+const fetch_all_bookings =async()=>{
+  dispatch({type:'loading_data', payload:true})
+  await Axios.get(`/api/v1/allbookings?date=${new Date()}`)
+  .then((res)=>{
+    if(res.data.allSlots){      
+      set_all_bookings(res.data.allSlots)
+    }
+  }).catch((err)=>{
+    console.log(err)
+  }).finally(()=>{
+  dispatch({type:'loading_data', payload:false})
+  })
+}
+
+
+const fetch_all_company_bookings=async(e)=>{
+  e.preventDefault();
+dispatch({type:'loading_data',payload:true})
+await Axios.get(`/api/v1/bookings/details?date=${form_data.date}&company=${form_data.company}`)
+.then((res)=>{
+  console.log(res)
+  set_filter_overlay(false)
+  set_all_bookings(res?.data?.slots)
+}).catch((err)=>{
+  console.log(err)
+}).finally(()=>{
+dispatch({type:'loading_data',payload:false})
+})
+
+
+
+
+}
+
+
+useEffect(()=>{
+fetch_all_bookings()
+},[])
 
 
   return (
     <>
       {filter_overlay ? (
         <FilterPop
-          filter_handle_form={filter_handle_form}
+        fetch_all_company_bookings={fetch_all_company_bookings}
           handle_form_changes={handle_form_changes}
           pop_up_filter={pop_up_filter}
         />
@@ -44,7 +131,9 @@ const pop_up_new_booking=()=>{
         ""
       )}
 {
-    add_booking_pop?  <AddNewBooking pop_up_new_booking={pop_up_new_booking}/>:''
+    add_booking_pop?  <AddNewBooking 
+    room_booking_handler={room_booking_handler}
+    handle_booking_form_changes={handle_booking_form_changes} pop_up_new_booking={pop_up_new_booking}/>:''
 }
 
 
@@ -65,7 +154,7 @@ const pop_up_new_booking=()=>{
             />
           </svg>
         </div>
-        <div  className="flex w-16 h-16 bg-gray-600  text-white cursor-pointer  justify-center hover:rotate-45 duration-150 ease-in transition-all items-center absolute bottom-24 right-4 rounded-full">
+        <div onClick={fetch_all_bookings} className="flex w-16 h-16 bg-gray-600  text-white cursor-pointer  justify-center hover:rotate-45 duration-150 ease-in transition-all items-center absolute bottom-24 right-4 rounded-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -109,56 +198,39 @@ const pop_up_new_booking=()=>{
               <thead className="text-xs  uppercase bg-gray-600 ">
                 <tr>
                   <th scope="col" className="px-6 py-3">
-                    Product name
+                    Company
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Color
+                    Room
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Category
+                    Time
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Price
+                    Booked by
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Action
+                    Booked at
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="bg-white border-b h-16 border-white">
+              { all_bookings && all_bookings.map((e)=> <tr key={e._id}  className={e.flexy ?  "h-16 text-white bg-gradient-to-r from-cyan-500 to-blue-500": "bg-white text-gray-700  border-b h-16 border-white"}>
                   <th
                     scope="row"
-                    className="px-6 py-4 font-medium text-gray-700 whitespace-nowrap "
+                    className="px-6 py-4 font-medium whitespace-nowrap "
                   >
-                    Apple MacBook Pro 17
+                    {fetch_company(companies,e?.company)}
                   </th>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
+                  <td className="px-6 py-4">{e?.room}</td>
+                  <td className="px-6 py-4">{e?.time}</td>
+                  <td className="px-6 py-4">{e?.bookedby.split('+')[0]}</td>
                   <td className="px-6 py-4">
-                    <a href="#" className="font-medium  hover:underline">
-                      Edit
-                    </a>
+                    {ReadDate(e?.CraetedAt)}
                   </td>
-                </tr>
+                </tr>)}
 
-                <tr className="bg-white border-b h-16 border-white">
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-700 whitespace-nowrap "
-                  >
-                    Apple MacBook Pro 17
-                  </th>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">
-                    <a href="#" className="font-medium  hover:underline">
-                      Edit
-                    </a>
-                  </td>
-                </tr>
+               
               </tbody>
             </table>
           </div>
